@@ -1,0 +1,2415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mist, Simplicity. Power. Lua.</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+
+        :root {
+            --primary: #0066ff;
+            --primary-dark: #0052cc;
+            --secondary: #0066ff;
+            --dark-bg: #0d0d0d;
+            --darker-bg: #080808;
+            --card-bg: #1a1a1a;
+            --light-text: #f0f0f0;
+            --lighter-text: #ffffff;
+            --discord-purple: #5865F2;
+            --highlight: #0066ff;
+            --highlight-dark: #0047b3;
+            --primary-bg: #121212;
+            --secondary-bg: #1a1a1a;
+            --border: #2a2a2a;
+            --text-medium: #b0b0b0;
+            --text-dark: #333;
+            --pink-glow: 0 0 20px rgba(0, 102, 255, 0.5);
+            --shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --success: #4CAF50;
+            --danger: #f44336;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: var(--light-text);
+            overflow-x: hidden;
+            line-height: 1.6;
+            position: relative;
+        }
+
+
+        .mist-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .mist-particle {
+            position: absolute;
+            background: radial-gradient(circle, rgba(0,102,255,0.3) 0%, rgba(0,102,255,0) 70%);
+            border-radius: 50%;
+            filter: blur(20px);
+            opacity: 0.3;
+            animation: mist-move 30s infinite linear;
+        }
+
+        @keyframes mist-move {
+            0% {
+                transform: translate(0, 0);
+            }
+            50% {
+                transform: translate(50%, 50%);
+            }
+            100% {
+                transform: translate(0, 0);
+            }
+        }
+
+
+        .glow {
+            text-shadow: 0 0 10px rgba(0, 102, 255, 0.7);
+            animation: glow-pulse 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow-pulse {
+            0% {
+                text-shadow: 0 0 10px rgba(0, 102, 255, 0.7);
+            }
+            100% {
+                text-shadow: 0 0 20px rgba(0, 102, 255, 0.9), 0 0 30px rgba(0, 102, 255, 0.5);
+            }
+        }
+
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--darker-bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
+        }
+
+
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 1.5rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            background: rgba(13, 13, 13, 0.9);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 102, 255, 0.2);
+            transform: translateY(0);
+            transition: all 0.3s ease;
+        }
+
+        nav.scrolled {
+            padding: 1rem 5%;
+            box-shadow: 0 5px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .logo {
+            font-weight: 800;
+            font-size: 1.8rem;
+            background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-decoration: none;
+            letter-spacing: 1px;
+            position: relative;
+        }
+
+        .logo::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+            transform: scaleX(0);
+            transform-origin: right;
+            transition: transform 0.4s ease;
+        }
+
+        .logo:hover::after {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: var(--light-text);
+            text-decoration: none;
+            font-weight: 500;
+            position: relative;
+            padding: 0.5rem 0;
+            opacity: 0.9;
+            transition: all 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            opacity: 1;
+            color: var(--primary);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .cta-button {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 0.6rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 102, 255, 0.4);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-button::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -60%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to right,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0.1) 50%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            transform: rotate(30deg);
+            transition: all 0.3s ease;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 102, 255, 0.6);
+        }
+
+        .cta-button:hover::after {
+            left: 100%;
+        }
+
+        .discord-button {
+            background: var(--discord-purple);
+            color: white;
+            padding: 0.6rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(88, 101, 242, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .discord-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(88, 101, 242, 0.6);
+            background: #4752c4;
+        }
+
+        .not-released-button {
+            background: #333;
+            color: #aaa;
+            padding: 0.6rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: not-allowed;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .roblox-button {
+            background: var(--primary);
+            color: white;
+            padding: 0.6rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 102, 255, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .roblox-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 102, 255, 0.6);
+            background: var(--primary-dark);
+        }
+
+
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 0 5%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-content {
+            max-width: 600px;
+            z-index: 2;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+            background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.8s ease forwards 0.3s;
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.8s ease forwards 0.5s;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.8s ease forwards 0.7s;
+        }
+
+        .hero-image {
+            position: absolute;
+            right: 5%;
+            width: 45%;
+            max-width: 700px;
+            opacity: 0;
+            transform: translateX(50px);
+            animation: fadeInRight 1s ease forwards 0.9s;
+            filter: drop-shadow(0 20px 30px rgba(0, 102, 255, 0.3));
+        }
+
+        .hero-image img {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
+
+
+        .section {
+            padding: 6rem 5%;
+            position: relative;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 4rem;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.8s ease forwards;
+        }
+
+        .section-title h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .section-title p {
+            max-width: 600px;
+            margin: 0 auto;
+            opacity: 0.8;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.8s ease forwards;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                135deg,
+                rgba(0, 102, 255, 0.1) 0%,
+                rgba(0, 102, 255, 0) 50%,
+                rgba(0, 102, 255, 0.1) 100%
+            );
+            z-index: -1;
+        }
+
+        .feature-card:nth-child(1) {
+            animation-delay: 0.2s;
+        }
+
+        .feature-card:nth-child(2) {
+            animation-delay: 0.4s;
+        }
+
+        .feature-card:nth-child(3) {
+            animation-delay: 0.6s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+            border-color: rgba(0, 102, 255, 0.5);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(0, 102, 255, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        .feature-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card p {
+            opacity: 0.8;
+            font-size: 0.95rem;
+        }
+
+
+        .code-section {
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-top: 4rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.8s ease forwards 0.4s;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .code-header {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 0.8rem 1.5rem;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .code-dots {
+            display: flex;
+            gap: 0.5rem;
+            margin-right: 1rem;
+        }
+
+        .code-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .code-dot.red {
+            background: #ff5f56;
+        }
+
+        .code-dot.yellow {
+            background: #ffbd2e;
+        }
+
+        .code-dot.green {
+            background: #27c93f;
+        }
+
+        .code-title {
+            font-family: 'SF Mono', 'Roboto Mono', monospace;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .code-content {
+            padding: 1.5rem;
+            font-family: 'SF Mono', 'Roboto Mono', monospace;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            overflow-x: auto;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .code-content .keyword {
+            color: #ff7b72;
+        }
+
+        .code-content .function {
+            color: #d2a8ff;
+        }
+
+        .code-content .string {
+            color: #a5d6ff;
+        }
+
+        .code-content .comment {
+            color: #8b949e;
+            font-style: italic;
+        }
+
+        .code-content .number {
+            color: #79c0ff;
+        }
+
+        .code-content .luafunc {
+            color: #ff9d5c;
+        }
+
+
+        .community-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            text-align: center;
+            cursor: pointer;
+            max-width: 500px;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .community-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                135deg,
+                rgba(88, 101, 242, 0.1) 0%,
+                rgba(88, 101, 242, 0) 50%,
+                rgba(88, 101, 242, 0.1) 100%
+            );
+            z-index: -1;
+        }
+
+        .community-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+            border-color: rgba(88, 101, 242, 0.5);
+        }
+
+        .community-icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(88, 101, 242, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 2rem;
+            color: var(--discord-purple);
+        }
+
+        .community-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .community-card p {
+            opacity: 0.8;
+            margin-bottom: 1.5rem;
+        }
+
+
+        footer {
+            background: var(--darker-bg);
+            padding: 4rem 5% 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 3rem;
+            margin-bottom: 3rem;
+        }
+
+        .footer-logo {
+            font-weight: 800;
+            font-size: 1.8rem;
+            background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-decoration: none;
+            letter-spacing: 1px;
+            margin-bottom: 1.5rem;
+            display: inline-block;
+            position: relative;
+        }
+
+        .footer-logo::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+            transform: scaleX(0);
+            transform-origin: right;
+            transition: transform 0.4s ease;
+        }
+
+        .footer-logo:hover::after {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+
+        .footer-about p {
+            opacity: 0.7;
+            margin-bottom: 1.5rem;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .social-link {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .social-link:hover {
+            background: var(--primary);
+            transform: translateY(-3px);
+        }
+
+        .footer-links h4 {
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+
+        .footer-links h4::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 2px;
+            background: var(--primary);
+        }
+
+        .footer-links ul {
+            list-style: none;
+        }
+
+        .footer-links ul li {
+            margin-bottom: 0.8rem;
+        }
+
+        .footer-links ul li a {
+            color: var(--light-text);
+            text-decoration: none;
+            opacity: 0.7;
+            transition: all 0.3s ease;
+        }
+
+        .footer-links ul li a:hover {
+            opacity: 1;
+            color: var(--primary);
+            padding-left: 5px;
+        }
+
+        .footer-bottom {
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .footer-bottom p {
+            opacity: 0.7;
+            font-size: 0.9rem;
+        }
+
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background: var(--secondary-bg);
+            border-radius: var(--radius-md);
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow: hidden;
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+            border: 1px solid var(--border);
+            box-shadow: var(--pink-glow);
+        }
+
+        .modal.active .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--card-bg);
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--highlight);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-medium);
+            font-size: 20px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .modal-close:hover {
+            color: var(--highlight);
+        }
+
+        .modal-body {
+            padding: 20px;
+            overflow-y: auto;
+            max-height: calc(70vh - 100px);
+        }
+
+        .modal-script {
+            background: var(--primary-bg);
+            border-radius: var(--radius-sm);
+            padding: 15px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-break: break-all;
+            font-size: 13px;
+            color: var(--light-text);
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+            border: 1px solid var(--border);
+        }
+
+        .modal-footer {
+            padding: 15px 20px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            background: var(--card-bg);
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--highlight);
+            color: var(--primary-bg);
+        }
+
+        .btn-primary:hover {
+            background: var(--highlight-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 102, 255, 0.4);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #3e8e41;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #d32f2f;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: var(--secondary-bg);
+            color: var(--light-text);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--card-bg);
+            transform: translateY(-2px);
+        }
+
+        .scroll-container {
+            height: calc(100vh - 180px);
+            overflow-y: auto;
+            padding-right: 8px;
+            margin-top: 15px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+            animation: fadeInDown 0.6s ease-out;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--highlight);
+        }
+
+        .logo i {
+            font-size: 24px;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            position: relative;
+        }
+
+        .search-input {
+            padding: 12px 20px;
+            border: 1px solid var(--border);
+            background: var(--secondary-bg);
+            color: var(--light-text);
+            border-radius: var(--radius-md);
+            width: 300px;
+            font-size: 14px;
+            outline: none;
+            transition: var(--transition);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-input:focus {
+            border-color: var(--highlight);
+            box-shadow: var(--pink-glow);
+            transform: scale(1.02);
+        }
+
+        .search-button {
+            padding: 12px 20px;
+            background: var(--highlight);
+            color: var(--primary-bg);
+            border: none;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 10px rgba(0, 102, 255, 0.3);
+        }
+
+        .search-button:hover {
+            background: var(--highlight-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 102, 255, 0.4);
+        }
+
+        .search-button:active {
+            transform: translateY(0);
+        }
+
+        .filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            animation: fadeIn 0.8s ease 0.2s both;
+        }
+
+        .filter-select {
+            padding: 8px 15px;
+            border: 1px solid var(--border);
+            background: var(--secondary-bg);
+            color: var(--light-text);
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            outline: none;
+            transition: var(--transition);
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23b0b0b0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 14px;
+            padding-right: 30px;
+        }
+
+        .filter-select:focus {
+            border-color: var(--highlight);
+            box-shadow: 0 0 0 2px rgba(0, 102, 255, 0.2);
+        }
+
+        .scripts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            animation: fadeIn 0.8s ease;
+        }
+
+        .script-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            border: 1px solid var(--border);
+            transition: var(--transition);
+            transform: translateY(0);
+            opacity: 0;
+            animation: cardEnter 0.5s ease forwards;
+            position: relative;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+        }
+
+        .script-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--highlight);
+            color: var(--primary-bg);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            z-index: 2;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        @keyframes cardEnter {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .script-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--highlight);
+            box-shadow: var(--pink-glow);
+        }
+
+        .script-image-container {
+            width: 100%;
+            height: 160px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .script-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            background: var(--secondary-bg);
+            transition: transform 0.5s ease;
+        }
+
+        .script-card:hover .script-image {
+            transform: scale(1.05);
+        }
+
+        .script-content {
+            padding: 16px;
+        }
+
+        .script-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--light-text);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: color 0.3s ease;
+        }
+
+        .script-card:hover .script-title {
+            color: var(--highlight);
+        }
+
+        .script-info {
+            color: var(--text-medium);
+            font-size: 12px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .script-info i {
+            color: var(--highlight);
+            font-size: 14px;
+            width: 16px;
+            text-align: center;
+        }
+
+        .script-stats {
+            display: flex;
+            gap: 15px;
+            margin-top: 12px;
+            margin-bottom: 15px;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+            color: var(--text-medium);
+        }
+
+        .stat-item i {
+            color: var(--highlight);
+        }
+
+        .loader {
+            border: 3px solid var(--border);
+            border-top: 3px solid var(--highlight);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 30px auto;
+        }
+
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--highlight);
+            color: var(--primary-bg);
+            padding: 12px 22px;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 14px;
+            display: none;
+            z-index: 1000;
+            animation: slideInRight 0.5s ease, fadeOut 0.5s ease 2.5s forwards;
+            box-shadow: var(--pink-glow);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .notification i {
+            font-size: 16px;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 30px;
+            animation: fadeIn 0.8s ease;
+        }
+
+        .page-button {
+            padding: 8px 16px;
+            background: var(--secondary-bg);
+            color: var(--highlight);
+            border: 1px solid var(--highlight);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 13px;
+            font-weight: 600;
+            min-width: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .page-button:hover {
+            background: var(--highlight);
+            color: var(--primary-bg);
+            border-color: var(--highlight);
+        }
+
+        .page-button.active {
+            background: var(--highlight);
+            color: var(--primary-bg);
+            border-color: transparent;
+        }
+
+        .page-button.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .page-transition {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--highlight);
+            z-index: 9999;
+            transform: scaleY(0);
+            transform-origin: bottom;
+            pointer-events: none;
+        }
+
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-medium);
+        }
+
+        .empty-state i {
+            font-size: 40px;
+            color: var(--highlight);
+            margin-bottom: 15px;
+            opacity: 0.7;
+        }
+
+        .empty-state h3 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: var(--light-text);
+        }
+
+        .empty-state p {
+            font-size: 14px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .local-scripts-toggle {
+            background: var(--highlight);
+            color: var(--primary-bg);
+            border: none;
+            border-radius: var(--radius-md);
+            padding: 8px 15px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-left: auto;
+        }
+
+        .local-scripts-toggle:hover {
+            background: var(--highlight-dark);
+            transform: translateY(-2px);
+        }
+
+        .local-scripts-container {
+            display: none;
+            margin-top: 20px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .local-scripts-container.active {
+            display: block;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--highlight);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .remove-script-btn {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: var(--danger);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: var(--transition);
+            z-index: 2;
+        }
+
+        .script-card:hover .remove-script-btn {
+            opacity: 1;
+        }
+
+
+        .script-hub-container {
+            display: none;
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .script-hub-container.active {
+            display: block;
+        }
+
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+
+        @keyframes pageTransitionOut {
+            from { transform: scaleY(0); }
+            to { transform: scaleY(1); }
+        }
+
+        @keyframes pageTransitionIn {
+            from { transform: scaleY(1); }
+            to { transform: scaleY(0); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: stretch;
+            }
+            
+            .search-box {
+                width: 100%;
+            }
+            
+            .search-input {
+                width: 100%;
+            }
+            
+            .scripts-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filters {
+                justify-content: center;
+            }
+
+            .local-scripts-toggle {
+                margin-left: 0;
+                width: 100%;
+                justify-content: center;
+            }
+
+            .modal-footer {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 15px;
+            }
+            
+            .filter-select {
+                flex-grow: 1;
+            }
+            
+            .pagination {
+                flex-wrap: wrap;
+            }
+
+            .modal-content {
+                width: 95%;
+            }
+        }
+
+
+        @media (max-width: 1024px) {
+            .hero h1 {
+                font-size: 3rem;
+            }
+            
+            .hero-image {
+                width: 50%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero {
+                flex-direction: column;
+                justify-content: center;
+                text-align: center;
+                padding-top: 6rem;
+            }
+            
+            .hero-content {
+                max-width: 100%;
+                margin-bottom: 3rem;
+            }
+            
+            .hero-buttons {
+                justify-content: center;
+            }
+            
+            .hero-image {
+                position: relative;
+                right: auto;
+                width: 80%;
+                margin: 0 auto;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .section-title h2 {
+                font-size: 2rem;
+            }
+            
+            .hero-buttons {
+                flex-direction: column;
+            }
+        }
+
+
+        .mist-header {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            z-index: 100;
+            color: var(--light-text);
+            font-size: 2rem;
+            font-weight: 700;
+            background: rgba(13, 13, 13, 0.7);
+            padding: 20px 40px;
+            border-radius: 50px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 102, 255, 0.3);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            width: auto;
+            max-width: 80%;
+        }
+
+        .mist-header span {
+            display: block;
+            line-height: 1.3;
+            background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .mist-header .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-top: 10px;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="mist-container" id="mistContainer"></div>
+
+
+    <div class="mist-header">
+        <span>MIST</span>
+        <span class="subtitle">Simplicity. Power. Lua.</span>
+    </div>
+
+
+    <nav id="navbar">
+        <a href="#" class="logo">MIST</a>
+        <div class="nav-links">
+            <a href="#features">Features</a>
+            <a href="#script-hub">Script Hub</a>
+            <a href="#community">Community</a>
+        </div>
+        <div class="nav-buttons">
+            <a href="https://discord.gg/xCCb4xCStD" target="_blank" class="discord-button">
+                <i class="fab fa-discord"></i> Discord
+            </a>
+            <button class="not-released-button">
+                <i class="fas fa-clock"></i> Coming Soon
+            </button>
+        </div>
+    </nav>
+
+
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Ultimate Roblox Lua Executor</h1>
+            <p>Mist brings unparalleled performance and features to Roblox scripting. Execute Lua scripts with blazing speed, advanced debugging, and complete security.</p>
+            <div class="hero-buttons">
+                <a href="https://discord.gg/xCCb4xCStD" target="_blank" class="cta-button">
+                    <i class="fab fa-discord"></i> Join Our Discord
+                </a>
+                <a href="#script-hub" class="roblox-button">
+                    <i class="fas fa-code"></i> Script Hub
+                </a>
+            </div>
+        </div>
+        <div class="hero-image">
+            <img src="https://via.placeholder.com/700x500/1a1a1a/0066ff?text=Mist+Roblox+Executor" alt="Mist Roblox Executor Interface">
+        </div>
+    </section>
+
+
+    <section class="section" id="features">
+        <div class="section-title">
+            <h2>Premium Execution Features</h2>
+            <p>Everything you need for advanced Roblox scripting</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <h3>Lightning Fast</h3>
+                <p>Optimized Lua execution engine delivers the fastest script performance in Roblox, with near-instant injection times.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3>Undetectable</h3>
+                <p>Advanced bypass techniques ensure your scripts run smoothly without detection or interference.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-code"></i>
+                </div>
+                <h3>Lua 5.3 Support</h3>
+                <p>Full support for Lua 5.3 features including bitwise operators, UTF-8, and more.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-bug"></i>
+                </div>
+                <h3>Advanced Debugger</h3>
+                <p>Built-in debugger with breakpoints, step-through execution, and real-time variable inspection.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-plug"></i>
+                </div>
+                <h3>Script Library</h3>
+                <p>Access to our curated library of high-quality Roblox scripts for any game.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-sync-alt"></i>
+                </div>
+                <h3>Auto-Updates</h3>
+                <p>Regular updates ensure compatibility with the latest Roblox versions and security patches.</p>
+            </div>
+        </div>
+    </section>
+
+
+    <section class="section" id="script-hub">
+        <div class="section-title">
+            <h2>Script Hub</h2>
+            <p>Browse and manage scripts for your favorite games</p>
+        </div>
+        
+
+        <div class="script-hub-container active">
+            <!-- Page transition overlay -->
+            <div class="page-transition" id="pageTransition"></div>
+
+
+            <div class="modal" id="scriptModal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 class="modal-title" id="modalTitle">Script Details</h3>
+                        <button class="modal-close" id="modalClose">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="modal-script" id="modalScriptContent">Loading script...</div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" id="saveScriptBtn">
+                            <i class="fas fa-bookmark"></i>
+                            Save Script
+                        </button>
+                        <button class="btn btn-primary" id="modalCopyButton">
+                            <i class="fas fa-copy"></i>
+                            Copy Script
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="header">
+                <div class="logo">
+                    <i class="fas fa-code"></i>
+                    <span>ScriptHub</span>
+                </div>
+                <div class="search-box">
+                    <input type="text" class="search-input" placeholder="Search scripts..." id="searchInput">
+                    <button class="search-button" onclick="searchScripts()">
+                        <i class="fas fa-search"></i>
+                        Search
+                    </button>
+                    <button class="local-scripts-toggle" id="localScriptsToggle">
+                        <i class="fas fa-bookmark"></i>
+                        My Scripts
+                    </button>
+                </div>
+            </div>
+
+            <div class="filters">
+                <select class="filter-select" id="scriptType">
+                    <option value="">All Types</option>
+                    <option value="free">Free</option>
+                    <option value="paid">Paid</option>
+                </select>
+                
+                <select class="filter-select" id="sortBy">
+                    <option value="updatedAt">Recently Updated</option>
+                    <option value="views">Most Views</option>
+                    <option value="likeCount">Most Likes</option>
+                    <option value="createdAt">Newest</option>
+                </select>
+                
+                <select class="filter-select" id="maxResults">
+                    <option value="10">10 Results</option>
+                    <option value="20" selected>20 Results</option>
+                    <option value="30">30 Results</option>
+                    <option value="50">50 Results</option>
+                </select>
+            </div>
+
+            <div class="scroll-container">
+                <div class="scripts-grid" id="scriptsContainer">
+                    <div class="loader"></div>
+                </div>
+
+                <div class="local-scripts-container" id="localScriptsContainer">
+                    <h3 class="section-title">
+                        <i class="fas fa-bookmark"></i>
+                        My Saved Scripts
+                    </h3>
+                    <div class="scripts-grid" id="localScriptsGrid">
+                        
+                    </div>
+                </div>
+            </div>
+
+            <div class="pagination" id="pagination"></div>
+
+            <div class="notification" id="notification">
+                <i class="fas fa-check-circle"></i>
+                <span>Script copied!</span>
+            </div>
+        </div>
+    </section>
+
+    
+    <section class="section" id="community">
+        <div class="section-title">
+            <h2>Join Our Community</h2>
+            <p>Connect with other Roblox scripters and get exclusive content</p>
+        </div>
+        <div class="community-card" onclick="window.open('https://discord.gg/xCCb4xCStD', '_blank')">
+            <div class="community-icon">
+                <i class="fab fa-discord"></i>
+            </div>
+            <h3>Mist Executor Discord</h3>
+            <p>Join our growing community of Roblox developers and scripters. Get early access to new features, share scripts, and get support from our team.</p>
+            <a href="https://discord.gg/xCCb4xCStD" target="_blank" class="discord-button">
+                <i class="fab fa-discord"></i> Join Now
+            </a>
+        </div>
+    </section>
+
+    
+    <footer>
+        <div class="footer-grid">
+            <div class="footer-about">
+                <a href="#" class="footer-logo">MIST</a>
+                <p>The most advanced Roblox Lua executor. Fast, reliable, and packed with features for serious scripters.</p>
+                <div class="social-links">
+                    <a href="https://discord.gg/xCCb4xCStD" target="_blank" class="social-link">
+                        <i class="fab fa-discord"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="footer-links">
+                <h4>Product</h4>
+                <ul>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#script-hub">Script Hub</a></li>
+                    <li><a href="#community">Community</a></li>
+                </ul>
+            </div>
+            <div class="footer-links">
+                <h4>Resources</h4>
+                <ul>
+                    <li><a href="#">Documentation</a></li>
+                    <li><a href="#">Tutorials</a></li>
+                    <li><a href="#">API Reference</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy;  Made by Aurora with love <3.</p>
+        </div>
+    </footer>
+
+    <script>
+        
+        let scriptsData = [];
+        let currentPage = 1;
+        let totalPages = 1;
+        let currentScriptIndex = -1;
+        let currentScript = null;
+        const proxies = [
+            'https://api.codetabs.com/v1/proxy/?quest=',
+            'https://thingproxy.freeboard.io/fetch/',
+            'https://corsproxy.io/?'
+        ];
+        let currentProxy = 0;
+        let showLocalScripts = false;
+
+        
+        function getLocalScripts() {
+            const scripts = localStorage.getItem('savedScripts');
+            return scripts ? JSON.parse(scripts) : [];
+        }
+
+        function saveLocalScript(script) {
+            const scripts = getLocalScripts();
+            
+            if (!scripts.some(s => s.title === script.title && s.script === script.script)) {
+                scripts.push(script);
+                localStorage.setItem('savedScripts', JSON.stringify(scripts));
+                return true;
+            }
+            return false;
+        }
+
+        function removeLocalScript(index) {
+            const scripts = getLocalScripts();
+            scripts.splice(index, 1);
+            localStorage.setItem('savedScripts', JSON.stringify(scripts));
+            renderLocalScripts();
+            return scripts;
+        }
+
+        function renderLocalScripts() {
+            const container = document.getElementById('localScriptsGrid');
+            const scripts = getLocalScripts();
+            
+            if (scripts.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-book-open"></i>
+                        <h3>No saved scripts</h3>
+                        <p>Save scripts by clicking the bookmark icon in the script modal</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            scripts.forEach((script, index) => {
+                html += `
+                    <div class="script-card" style="animation-delay: ${index * 0.05}s">
+                        <button class="remove-script-btn" data-index="${index}">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        <div class="script-image-container">
+                            <img
+                                src="${script.image || 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMTgwIiB2aWV3Qm94PSIwIDAgMzAwIDE4MCI+PHJlY3Qgd2lkdGg9IjMwMCIgaGVpZ2h0PSIxODAiIGZpbGw9IiMzMzMzMzMiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1mYW1pbHk9IkludGVyIiBmb250LXNpemU9IjE0IiBmaWxsPSIjYjBiMGIwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj5ObyBJbWFnZTwvdGV4dD48L3N2Zz4='}"
+                                class="script-image"
+                                onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMTgwIiB2aWV3Qm94PSIwIDAgMzAwIDE4MCI+PHJlY3Qgd2lkdGg9IjMwMCIgaGVpZ2h0PSIxODAiIGZpbGw9IiMzMzMzMzMiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1mYW1pbHk9IkludGVyIiBmb250LXNpemU9IjE0IiBmaWxsPSIjYjBiMGIwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj5JbWFnZSBFcnJvcjwvdGV4dD48L3N2Zz4='"
+                            >
+                        </div>
+                        <div class="script-content">
+                            <h3 class="script-title" title="${script.title}">${script.title}</h3>
+                            <p class="script-info">
+                                <i class="fas fa-gamepad"></i>
+                                ${script.game || 'No game specified'}
+                            </p>
+                            <div class="script-stats">
+                                <div class="stat-item">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    <span>${script.date ? new Date(script.date).toLocaleDateString() : 'N/A'}</span>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary" data-index="${index}" data-local="true" style="width: 100%;">
+                                <i class="fas fa-copy"></i>
+                                Copy Script
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+            
+            
+            document.querySelectorAll('#localScriptsGrid .btn-primary').forEach(btn => {
+                btn.addEventListener('click', handleLocalCopy);
+            });
+            
+            
+            document.querySelectorAll('.remove-script-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const index = btn.dataset.index;
+                    removeLocalScript(index);
+                    showMessage('Script removed from your collection');
+                });
+            });
+            
+            
+            document.querySelectorAll('#localScriptsGrid .script-card').forEach(card => {
+                card.addEventListener('click', (e) => {
+                    
+                    if (e.target.tagName === 'BUTTON' || e.target.closest('button')) return;
+                    
+                    const index = Array.from(card.parentElement.children).indexOf(card);
+                    const scripts = getLocalScripts();
+                    openScriptModal(index, true);
+                });
+            });
+        }
+
+        function toggleLocalScripts() {
+            showLocalScripts = !showLocalScripts;
+            const container = document.getElementById('localScriptsContainer');
+            const toggleBtn = document.getElementById('localScriptsToggle');
+            
+            if (showLocalScripts) {
+                container.classList.add('active');
+                toggleBtn.innerHTML = '<i class="fas fa-globe"></i> Browse Scripts';
+                renderLocalScripts();
+            } else {
+                container.classList.remove('active');
+                toggleBtn.innerHTML = '<i class="fas fa-bookmark"></i> My Scripts';
+            }
+        }
+
+        
+        async function animatePageTransition() {
+            const transition = document.getElementById('pageTransition');
+            transition.style.animation = 'pageTransitionOut 0.4s ease forwards';
+            
+            await new Promise(resolve => setTimeout(resolve, 400));
+            
+            transition.style.animation = 'pageTransitionIn 0.4s ease forwards';
+            await new Promise(resolve => setTimeout(resolve, 400));
+        }
+
+        async function fetchWithRetry(url, retries = 3) {
+            try {
+                const proxyUrl = proxies[currentProxy] + encodeURIComponent(url);
+                const response = await fetch(proxyUrl, {
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) throw new Error(`HTTP error ${response.status}`);
+                
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                if (retries > 0) {
+                    currentProxy = (currentProxy + 1) % proxies.length;
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    return fetchWithRetry(url, retries - 1);
+                }
+                throw error;
+            }
+        }
+
+        async function loadScripts(search = '', page = 1) {
+            await animatePageTransition();
+            
+            const container = document.getElementById('scriptsContainer');
+            container.innerHTML = '<div class="loader"></div>';
+            
+            try {
+                const scriptType = document.getElementById('scriptType').value;
+                const sortBy = document.getElementById('sortBy').value;
+                const maxResults = document.getElementById('maxResults').value;
+                
+                // Use a direct API endpoint that doesn't require CORS
+                let apiUrl;
+                if (search) {
+                    apiUrl = `https://scriptblox.com/api/script/search?q=${encodeURIComponent(search)}&page=${page}&max=${maxResults}`;
+                } else {
+                    apiUrl = `https://scriptblox.com/api/script/fetch?page=${page}&max=${maxResults}`;
+                }
+                
+                if (scriptType) apiUrl += `&mode=${scriptType}`;
+                if (sortBy) apiUrl += `&sortBy=${sortBy}`;
+                
+                
+                let data;
+                try {
+                    const response = await fetch(apiUrl);
+                    data = await response.json();
+                } catch (directError) {
+                    
+                    console.log('Direct fetch failed, using proxy...');
+                    data = await fetchWithRetry(apiUrl);
+                }
+                
+                
+                if (data && data.result && data.result.scripts) {
+                    scriptsData = data.result.scripts;
+                    totalPages = data.result.totalPages || 1;
+                } else if (data && Array.isArray(data)) {
+                    scriptsData = data;
+                    totalPages = 1;
+                } else {
+                    scriptsData = [];
+                    totalPages = 1;
+                }
+                
+                currentPage = page;
+                
+                renderScripts();
+                renderPagination();
+            } catch (error) {
+                console.error('Error fetching scripts:', error);
+                showMessage(`Error: ${error.message}`);
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Failed to load scripts</h3>
+                        <p>We couldn't connect to the server. Please check your internet connection and try again.</p>
+                    </div>
+                `;
+            }
+        }
+
+        function renderScripts() {
+            const container = document.getElementById('scriptsContainer');
+            
+            if (scriptsData.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-search"></i>
+                        <h3>No scripts found</h3>
+                        <p>Try adjusting your search or filters to find what you're looking for.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            scriptsData.forEach((script, index) => {
+                const raw = script.image;
+                const imageUrl = raw
+                    ? (raw.startsWith('http') ? raw : `https://scriptblox.com${raw}`)
+                    : 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMTgwIiB2aWV3Qm94PSIwIDAgMzAwIDE4MCI+PHJlY3Qgd2lkdGg9IjMwMCIgaGVpZ2h0PSIxODAiIGZpbGw9IiMyNTI1MjUiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1mYW1pbHk9IkludGVyIiBmb250LXNpemU9IjE0IiBmaWxsPSIjYjBiMGIwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj5ObyBJbWFnZTwvdGV4dD48L3N2Zz4=';
+    
+                html += `
+                    <div class="script-card" style="animation-delay: ${index * 0.05}s" data-index="${index}">
+                        ${script.paid ? '<span class="script-badge">Premium</span>' : ''}
+                        <div class="script-image-container">
+                            <img
+                                src="${imageUrl}"
+                                class="script-image"
+                                onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMTgwIiB2aWV3Qm94PSIwIDAgMzAwIDE4MCI+PHJlY3Qgd2lkdGg9IjMwMCIgaGVpZ2h0PSIxODAiIGZpbGw9IiMyNTI1MjUiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1mYW1pbHk9IkludGVyIiBmb250LXNpemU9IjE0IiBmaWxsPSIjYjBiMGIwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGlinZT0ibWlkZGxlIj5JbWFnZSBFcnJvcjwvdGV4dD48L3N2Zz4='"
+                            >
+                        </div>
+                        <div class="script-content">
+                            <h3 class="script-title" title="${script.title}">${script.title}</h3>
+                            <p class="script-info">
+                                <i class="fas fa-gamepad"></i>
+                                ${script.game?.name || 'No game specified'}
+                            </p>
+                            <div class="script-stats">
+                                <div class="stat-item">
+                                    <i class="fas fa-eye"></i>
+                                    <span>${script.views?.toLocaleString() || 'N/A'}</span>
+                                </div>
+                                <div class="stat-item">
+                                    <i class="fas fa-thumbs-up"></i>
+                                    <span>${script.likeCount?.toLocaleString() || 'N/A'}</span>
+                                </div>
+                                <div class="stat-item">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    <span>${script.updatedAt ? new Date(script.updatedAt).toLocaleDateString() : 'N/A'}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+            
+            
+            document.querySelectorAll('.script-card').forEach(card => {
+                card.addEventListener('click', (e) => {
+                    
+                    if (e.target.tagName === 'BUTTON' || e.target.closest('button')) return;
+                    
+                    const index = card.dataset.index;
+                    openScriptModal(index);
+                });
+            });
+        }
+
+        function openScriptModal(index, isLocal = false) {
+            let script;
+            if (isLocal) {
+                const scripts = getLocalScripts();
+                script = scripts[index];
+                currentScript = {...script, isLocal: true, localIndex: index};
+            } else {
+                script = scriptsData[index];
+                currentScript = {...script, isLocal: false, index: index};
+            }
+            
+            if (!script) return;
+            
+            const modal = document.getElementById('scriptModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalContent = document.getElementById('modalScriptContent');
+            const modalCopyBtn = document.getElementById('modalCopyButton');
+            const saveScriptBtn = document.getElementById('saveScriptBtn');
+            
+            modalTitle.textContent = script.title;
+            modalContent.textContent = script.script || 'No script content available';
+            
+            
+            const scripts = getLocalScripts();
+            const isSaved = scripts.some(s => s.title === script.title && s.script === script.script);
+            
+            if (isSaved) {
+                saveScriptBtn.innerHTML = '<i class="fas fa-check"></i> Saved';
+                saveScriptBtn.classList.add('btn-success');
+                saveScriptBtn.classList.remove('btn-secondary');
+            } else {
+                saveScriptBtn.innerHTML = '<i class="fas fa-bookmark"></i> Save Script';
+                saveScriptBtn.classList.add('btn-secondary');
+                saveScriptBtn.classList.remove('btn-success');
+            }
+            
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            
+            
+            modalCopyBtn.onclick = () => {
+                navigator.clipboard.writeText(script.script).then(() => {
+                    showMessage('Script copied to clipboard!');
+                }).catch(err => {
+                    showMessage('Failed to copy script');
+                    console.error('Failed to copy:', err);
+                });
+            };
+        }
+
+        function closeScriptModal() {
+            const modal = document.getElementById('scriptModal');
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+            currentScript = null;
+        }
+
+        function saveCurrentScript() {
+            if (!currentScript) return;
+            
+            const scriptToSave = {
+                title: currentScript.title,
+                script: currentScript.script,
+                game: currentScript.game?.name || 'No game specified',
+                image: currentScript.image,
+                date: new Date().toISOString()
+            };
+            
+            const saved = saveLocalScript(scriptToSave);
+            const saveScriptBtn = document.getElementById('saveScriptBtn');
+            
+            if (saved) {
+                saveScriptBtn.innerHTML = '<i class="fas fa-check"></i> Saved';
+                saveScriptBtn.classList.add('btn-success');
+                saveScriptBtn.classList.remove('btn-secondary');
+                showMessage('Script saved to your collection!');
+                
+               
+                if (showLocalScripts) {
+                    renderLocalScripts();
+                }
+            } else {
+                showMessage('This script is already in your collection');
+            }
+        }
+
+        function renderPagination() {
+            const pagination = document.getElementById('pagination');
+            pagination.innerHTML = '';
+            
+            if (totalPages <= 1) return;
+            
+            
+            const prevButton = document.createElement('button');
+            prevButton.className = `page-button ${currentPage === 1 ? 'disabled' : ''}`;
+            prevButton.innerHTML = '<i class="fas fa-chevron-left"></i>';
+            prevButton.addEventListener('click', () => loadScripts(document.getElementById('searchInput').value.trim(), currentPage - 1));
+            pagination.appendChild(prevButton);
+            
+            
+            const maxVisiblePages = 5;
+            let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+            let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+            
+            if (endPage - startPage + 1 < maxVisiblePages) {
+                startPage = Math.max(1, endPage - maxVisiblePages + 1);
+            }
+            
+            if (startPage > 1) {
+                const firstPageButton = document.createElement('button');
+                firstPageButton.className = 'page-button';
+                firstPageButton.textContent = '1';
+                firstPageButton.addEventListener('click', () => loadScripts(document.getElementById('searchInput').value.trim(), 1));
+                pagination.appendChild(firstPageButton);
+                
+                if (startPage > 2) {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.textContent = '...';
+                    ellipsis.style.padding = '8px 12px';
+                    ellipsis.style.color = 'var(--text-medium)';
+                    pagination.appendChild(ellipsis);
+                }
+            }
+            
+            for (let i = startPage; i <= endPage; i++) {
+                const pageButton = document.createElement('button');
+                pageButton.className = `page-button ${i === currentPage ? 'active' : ''}`;
+                pageButton.textContent = i;
+                pageButton.addEventListener('click', () => loadScripts(document.getElementById('searchInput').value.trim(), i));
+                pagination.appendChild(pageButton);
+            }
+            
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.textContent = '...';
+                    ellipsis.style.padding = '8px 12px';
+                    ellipsis.style.color = 'var(--text-medium)';
+                    pagination.appendChild(ellipsis);
+                }
+                
+                const lastPageButton = document.createElement('button');
+                lastPageButton.className = 'page-button';
+                lastPageButton.textContent = totalPages;
+                lastPageButton.addEventListener('click', () => loadScripts(document.getElementById('searchInput').value.trim(), totalPages));
+                pagination.appendChild(lastPageButton);
+            }
+            
+            
+            const nextButton = document.createElement('button');
+            nextButton.className = `page-button ${currentPage === totalPages ? 'disabled' : ''}`;
+            nextButton.innerHTML = '<i class="fas fa-chevron-right"></i>';
+            nextButton.addEventListener('click', () => loadScripts(document.getElementById('searchInput').value.trim(), currentPage + 1));
+            pagination.appendChild(nextButton);
+        }
+
+        function handleLocalCopy(event) {
+            event.stopPropagation();
+            const index = event.target.dataset.index;
+            const scripts = getLocalScripts();
+            const script = scripts[index];
+            
+            if (!script) {
+                showMessage('No script found');
+                return;
+            }
+
+            navigator.clipboard.writeText(script.script).then(() => {
+                showMessage('Script copied to clipboard!');
+                
+                
+                const button = event.target;
+                button.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                button.classList.add('btn-success');
+                button.classList.remove('btn-primary');
+                
+                setTimeout(() => {
+                    button.innerHTML = '<i class="fas fa-copy"></i> Copy Script';
+                    button.classList.add('btn-primary');
+                    button.classList.remove('btn-success');
+                }, 2000);
+            }).catch(err => {
+                showMessage('Failed to copy script');
+                console.error('Failed to copy:', err);
+            });
+        }
+
+        function searchScripts() {
+            const searchTerm = document.getElementById('searchInput').value.trim();
+            loadScripts(searchTerm, 1);
+        }
+
+        function showMessage(text) {
+            const notif = document.getElementById('notification');
+            notif.querySelector('span').textContent = text;
+            notif.style.display = 'flex';
+            notif.style.animation = 'none';
+            void notif.offsetWidth; 
+            notif.style.animation = 'slideInRight 0.5s ease, fadeOut 0.5s ease 2.5s forwards';
+        }
+
+        function setupFilterListeners() {
+            document.getElementById('scriptType').addEventListener('change', searchScripts);
+            document.getElementById('sortBy').addEventListener('change', searchScripts);
+            document.getElementById('maxResults').addEventListener('change', searchScripts);
+        }
+
+        
+        function debounce(func, wait) {
+            let timeout;
+            return function() {
+                const context = this, args = arguments;
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(context, args), wait);
+            };
+        }
+
+        
+        function createMistParticles() {
+            const container = document.getElementById('mistContainer');
+            const particleCount = Math.floor(window.innerWidth / 10);
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('mist-particle');
+                
+                
+                const size = Math.random() * 300 + 100;
+                const posX = Math.random() * 100;
+                const posY = Math.random() * 100;
+                const duration = Math.random() * 40 + 20;
+                const delay = Math.random() * -duration;
+                const opacity = Math.random() * 0.2 + 0.1;
+                
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${posX}%`;
+                particle.style.top = `${posY}%`;
+                particle.style.opacity = opacity;
+                particle.style.animationDuration = `${duration}s`;
+                particle.style.animationDelay = `${delay}s`;
+                
+                container.appendChild(particle);
+            }
+        }
+
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            createMistParticles();
+            
+            
+            window.addEventListener('scroll', function() {
+                const navbar = document.getElementById('navbar');
+                if (window.scrollY > 50) {
+                    navbar.classList.add('scrolled');
+                } else {
+                    navbar.classList.remove('scrolled');
+                }
+            });
+            
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = 1;
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            document.querySelectorAll('.section-title, .feature-card, .code-section').forEach(el => {
+                observer.observe(el);
+            });
+
+
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        window.scrollTo({
+                            top: target.offsetTop - 80,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+
+
+            loadScripts();
+            setupFilterListeners();
+            
+
+            const searchInput = document.getElementById('searchInput');
+            const debouncedSearch = debounce(searchScripts, 500);
+            searchInput.addEventListener('input', debouncedSearch);
+            
+
+            searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') searchScripts();
+            });
+            
+
+            document.getElementById('modalClose').addEventListener('click', closeScriptModal);
+            
+
+            document.getElementById('scriptModal').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('scriptModal')) {
+                    closeScriptModal();
+                }
+            });
+
+            window.getEditorContent = function() {
+                const activeTab = tabManager.getActiveTab();
+                return activeTab && activeTab.editor ? activeTab.editor.getValue() : '';
+            };
+
+            window.monacoInitialized = function() {
+                return typeof tabManager !== 'undefined' && 
+                    typeof monaco !== 'undefined' &&
+                    typeof getEditorContent !== 'undefined';
+            };
+            
+
+            document.getElementById('localScriptsToggle').addEventListener('click', toggleLocalScripts);
+            
+
+            document.getElementById('saveScriptBtn').addEventListener('click', saveCurrentScript);
+        });
+
+
+        window.addEventListener('resize', function() {
+            const container = document.getElementById('mistContainer');
+            container.innerHTML = '';
+            createMistParticles();
+        });
+    </script>
+</body>
+</html>
